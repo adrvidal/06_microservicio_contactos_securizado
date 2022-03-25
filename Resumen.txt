@@ -1,0 +1,55 @@
+Hasta ahora las aplicaciones clientes podían acceder libremente a los recursos.
+
+SECURIZAR UN SERVICIO
+			¿que vamos a hacer?
+				Ahora veremos como securizar un microservicio: permitir el acceso a los recursos, solamente a usuarios autorizados 
+			Para ello
+					Se requiere PROCESO DE AUTENTICACIÓN Y AUTORIZACIÓN de usuarios.
+			Quien lo gestiona
+					Ese proceso es gestionado por el módulo se Spring Security.
+					
+
+		1. Añadir Spring security (depencia adicional, starter)
+		2. Añadir una serie de configuraciones para indicarle:
+			 Cuales son los repositorios de usuario para que haga la autenticación
+			 Y la política de accesos a los distintos recursos de nuestro microservicio
+			 
+			 CONFIGURACIÓN
+				1. Vamos a crear una clase de configuracion @configuration
+				2. Va a herar de WebSecurityConfigurarAdapter. 
+					ANOTACIONES
+						@EnableWebSecurity // Nos indica que se trata de una clase de configuración de Seguridad
+						@Configuration // es una clase de configuración que va a ser consultada por Spring al iniciarse.
+						
+				3: En esta clase hay que sobreescribir un par de métodos, que reciben diferentes cosas como parámetros
+					configure (AuthenticationManagerBuilder auth):
+						Cuales y donde están los usuarios de la aplicación. ( en memoria, en una base de datos)
+						Los roles de cada usuario.
+					configure (Http...)
+						La politica de ACCESO a los recursos. (PROTECCIÓN DE NUESTORS RECURSOS= POLÍTICAS DE SEGURIDAD)
+							Para poder acceder a x petición HTTP => Se necesita ser del rol X
+							
+						1. Descativamos una serie de filtros internos -> Para proporcionar las credenciales una sola vez.
+							1. Solo los usuarios con rol ADMIN pueden ejecutar el POST
+							2. La URL /contactos sólo será accesible a usuarios autenticados ( da igual el rol)
+							
+							3: Indicamos que el tipo de autenticación va a ser básica. A partir de credenciales :usuario y password.
+								Estos datos son enviados en una cabecera especial de la petición.
+					
+		3. En la clase principal meter el paquete : @ComponentScan(basePackages = {"controller","service","dao","inicio"})
+			
+		Vamos a securizar el microservicio de contactos.
+			Vamos a proteter la realización de peticiones POST, para que sólamente lo puedan hacer
+			usuarios con un determinado rol.
+			
+COMO SE AUTENTICAN LOS USUARIOS (autenticado, autorizado)???
+		 Error 401: usuario no autenticado. No se han introducido las credenciales.
+		 Error 403: usuario autenticado pero no autorizado.
+	 
+	 ¿Cómo nos autenticamos en postman?
+		Pestaña Authorization; type Basic Auth; username, Password
+
+	Si queremos lanzar la petición POST, además de estar autenticado el usuario necesita pertenecer a cierto rol.
+		 Con username1 =>403
+		 Con admin => Se hace perfectamente, dado que ese usuario tiene rol ADMIN
+
